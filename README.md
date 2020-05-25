@@ -1,0 +1,2 @@
+# HustRust
+Playing with Rust
