@@ -163,7 +163,6 @@ fn ownership_2() {
     println!("After makes_copy: {}", x);
 }
 
-// reference
 fn reference() {
     let s1 = String::from("hello");
     let s2 = &s1;
@@ -173,6 +172,24 @@ fn reference() {
     println!("s1 is {}, s2 is {}", s1, s2);
 }
 
+fn borrow_ownership() {
+    let s1 = String::from("hello");
+    let s2 = &s1;
+
+    println!("s1 is {}, s2 is {}", s1, s2);
+
+    let s3 = s1;
+
+    // this will explode, as in previous step, we have transferred the ownership of "hello" from s1
+    // to s3. s1 is not no one's owner, and s2 is trying to borrow s1's ownership, hence not valid.
+    // println!("s3 is {}, s2 is {}", s3, s2);
+
+    // if we re-borrow the ownership from a valid owner, then it's a valid move.
+    let s2 = &s3;
+    println!("s3 is {}, s2 is {}", s3, s2);
+}
+
+// value vs reference as parameters
 fn pass_in_value_vs_pass_in_reference() {
     // Accepts a reference of string, returns a int
     fn calculate_length_reference(s: &String) -> usize {
@@ -199,7 +216,75 @@ fn pass_in_value_vs_pass_in_reference() {
     println!("Part 2: The length is {}", len2);
 }
 
+// when you have a borrowed ownership (reference), you can use (read) the value, but you can't
+// mutate it.
+// But things get more powerful with mutable reference.
+fn mutable_reference() {
+    let mut s1 = String::from("hello");
+    let s2 = &s1;
 
+    // it's ok to read the value of s1.
+    // read s2 == read the referee of s2 == read the value of s1
+    println!("{}", s2);
+
+    // this will explode. It's not ok to mutate the value
+    // s2.push_str(" -- Ops!");
+
+    // However, we can set s2 as a mutable reference.
+
+    let mut s1 = String::from("hello");
+    // notice the difference here. Also note that s1 must be a mutable type if we define s2 as a
+    // mutable reference.
+    let s2 = &mut s1;
+
+    // it's ok to read the value of s1.
+    // read s2 == read the referee of s2 == read the value of s1
+    println!("{}", s2);
+
+    // it's ok to mutate the value
+    s2.push_str(" -- OK!");
+
+    println!("{}", s2);
+}
+
+fn only_one_active_mutable_reference() {
+    let mut s = String::from("hello");
+
+    let r1 = &mut s;
+    let r2 = &mut s;
+
+    // Boom.
+    // Rust doesn't allow multiple mutable references to the same value in the same scope. This is
+    // for concurrency safety.
+    // println!("{}, {}", r1, r2);
+
+    // how about one mutable one immutable?
+    let r1 = &s;
+    let r2 = &mut s;
+
+    // or the other way?
+    // let r1 = &mut s;
+    // let r2 = &s;
+
+    // Boom again.
+    // Rust doesn't allow mutable reference as long as there is another immutable reference in the
+    // same scope.
+    // "cannot borrow `s` as mutable because it is also borrowed as immutable"
+    // println!("{}, {}", r1, r2);
+}
+
+// Won't compile.
+// This function will return a reference to s, i.e. the value "hello". However, when the
+// function finishes, s is freed, there is no value for &s to reference.
+//   > help: this function's return type contains a borrowed value, but there is no value for it to
+//     be borrowed from
+//   > help: consider using the `'static` lifetime
+//
+// fn no_dangling_reference() -> &String {
+//     let s = String::from("hello");
+//
+//     return &s;
+// }
 
 fn main() {
     // variables();
@@ -218,5 +303,13 @@ fn main() {
 
     // reference();
 
-    pass_in_value_vs_pass_in_reference();
+    // pass_in_value_vs_pass_in_reference();
+
+    // borrow_ownership();
+
+    // mutable_reference();
+
+    // only_one_active_mutable_reference();
+
+    // no_dangling_reference();
 }
