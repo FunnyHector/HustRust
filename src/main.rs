@@ -6,8 +6,12 @@ fn main() {
     //
     // for_loops();
 
-    let foo = loop_loop();
-    println!("loop_loop() returned: {}", foo);
+    // let foo = loop_loop();
+    // println!("loop_loop() returned: {}", foo);
+
+    // ownership_1();
+
+    ownership_2();
 }
 
 // variables
@@ -16,12 +20,12 @@ fn variables() {
     const A: i32 = 3;
     let b = 100.8;
     let c = 300;
-    const FOO:&str = "A const";
+    const FOO: &str = "A const";
 
     println!("Hello, world! {0}, {1}, {2}, {3}", A, b, c, FOO);
 
     // mutable variables
-    let mut x:i32 = 5;
+    let mut x: i32 = 5;
     x = x - 6;
 
     println!("The value of x is: {}", x);
@@ -110,5 +114,60 @@ fn loop_loop() -> char {
         }
 
         i += 1;
+    };
+}
+
+// understanding ownership
+fn ownership_1() {
+    /*
+       The following has error:
+
+             let s1 = String::from("hello");
+                 -- move occurs because `s1` has type `std::string::String`, which does not implement the `Copy` trait
+             let s2 = s1;
+                      -- value moved here
+             println!("{}, world!", s2);
+             println!("{}, world!", s1);
+                                    ^^ value borrowed here after move
+     */
+    // let s1 = String::from("hello");
+    // let s2 = s1;
+    // println!("{}, world! {}, world!", s1, s2);
+
+    // If we clone the string, then it's a cloned resource in memory, and it's ok now
+    let s1 = "hello";
+    let s2 = s1.clone();
+    println!("{}, world! {}, world!", s1, s2);
+
+    // If the string is not from String::from(), but a string literal, then it's ok.
+    let s1 = "hello";
+    let s2 = s1;
+    println!("{}, world! {}, world!", s1, s2);
+}
+
+// understanding ownership
+fn ownership_2() {
+    fn takes_ownership(a_string: String) {
+        println!("In takes_ownership: {}", a_string);
     }
+
+    let s = String::from("hello");
+
+    takes_ownership(s);
+
+    // after takes_ownership(s), s has been passed into another function, and therefore the value
+    // has been moved. Same error here as in ownership_1()
+    // println!("After takes_ownership: {}", s);
+
+    fn makes_copy(primitive_value: i32) {
+        println!("In makes_copy: {}", primitive_value);
+    }
+
+    let x = 5;
+
+    makes_copy(x);
+
+    // But for primitive values like integers, the value is copied not moved. So here x is still
+    // available.
+    println!("After makes_copy: {}", x);
 }
