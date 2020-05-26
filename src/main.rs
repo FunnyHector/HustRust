@@ -11,7 +11,11 @@ fn main() {
 
     // ownership_1();
 
-    ownership_2();
+    // ownership_2();
+
+    // reference();
+
+    pass_in_value_vs_pass_in_reference();
 }
 
 // variables
@@ -135,13 +139,20 @@ fn ownership_1() {
     // println!("{}, world! {}, world!", s1, s2);
 
     // If we clone the string, then it's a cloned resource in memory, and it's ok now
-    let s1 = "hello";
+    let s1 = String::from("hello");
     let s2 = s1.clone();
     println!("{}, world! {}, world!", s1, s2);
 
     // If the string is not from String::from(), but a string literal, then it's ok.
+    // Note that `String::from("hello")` has the type String, but "hello" has the type `&str`
     let s1 = "hello";
     let s2 = s1;
+    println!("{}, world! {}, world!", s1, s2);
+
+    // If we make s2 the reference of s1, then it's also ok.
+    // see reference() function.
+    let s1 = String::from("hello");
+    let s2 = &s1;
     println!("{}, world! {}, world!", s1, s2);
 }
 
@@ -170,4 +181,40 @@ fn ownership_2() {
     // But for primitive values like integers, the value is copied not moved. So here x is still
     // available.
     println!("After makes_copy: {}", x);
+}
+
+// reference
+fn reference() {
+    let s1 = String::from("hello");
+    let s2 = &s1;
+
+    // s2 is a reference of s1, not moved from s1. Making a reference doesn't make s1 not available
+    // because it doesn't change the ownership of the string.
+    println!("s1 is {}, s2 is {}", s1, s2);
+}
+
+fn pass_in_value_vs_pass_in_reference() {
+    // Accepts a reference of string, returns a int
+    fn calculate_length_reference(s: &String) -> usize {
+        s.len()
+    }
+
+    let s1 = String::from("hello");
+    let r1 = &s1;
+    let len1 = calculate_length_reference(r1);
+
+    // s1 is available. r is a reference of s1, but not the owner. r borrows the ownership of s1.
+    println!("Part 1: The length of '{}' is {}", s1, len1);
+
+    // Accepts a string, returns a int
+    fn calculate_length_value(s: String) -> usize {
+        s.len()
+    }
+
+    let s2 = String::from("hello");
+    let len2 = calculate_length_value(s2);
+
+    // at this point, s2 is not available as the ownership has been passed into
+    // calculate_length_value()
+    println!("Part 2: The length is {}", len2);
 }
