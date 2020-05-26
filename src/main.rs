@@ -1,23 +1,3 @@
-fn main() {
-    // variables();
-    //
-    // function_1("Hector");
-    // println!("{:?}", function_2());
-    //
-    // for_loops();
-
-    // let foo = loop_loop();
-    // println!("loop_loop() returned: {}", foo);
-
-    // ownership_1();
-
-    // ownership_2();
-
-    // reference();
-
-    pass_in_value_vs_pass_in_reference();
-}
-
 // variables
 fn variables() {
     // default variables
@@ -217,4 +197,26 @@ fn pass_in_value_vs_pass_in_reference() {
     // at this point, s2 is not available as the ownership has been passed into
     // calculate_length_value()
     println!("Part 2: The length is {}", len2);
+}
+
+
+
+fn main() {
+    // variables();
+    //
+    // function_1("Hector");
+    // println!("{:?}", function_2());
+    //
+    // for_loops();
+
+    // let foo = loop_loop();
+    // println!("loop_loop() returned: {}", foo);
+
+    // ownership_1();
+
+    // ownership_2();
+
+    // reference();
+
+    pass_in_value_vs_pass_in_reference();
 }
