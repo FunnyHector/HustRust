@@ -163,6 +163,8 @@ fn ownership_2() {
     println!("After makes_copy: {}", x);
 }
 
+// `&` is the reference sign, it allows us to use (read-only) but not own the value. In other words,
+// the ownership is not transferred.
 fn reference() {
     let s1 = String::from("hello");
     let s2 = &s1;
@@ -170,6 +172,16 @@ fn reference() {
     // s2 is a reference of s1, not moved from s1. Making a reference doesn't make s1 not available
     // because it doesn't change the ownership of the string.
     println!("s1 is {}, s2 is {}", s1, s2);
+}
+
+// `*` is the dereference sign. Opposite of reference.
+fn dereference() {
+    let s1 = String::from("hello");
+    let s2 = &s1;
+
+    // s2 is a reference of s1, not moved from s1. Making a reference doesn't make s1 not available
+    // because it doesn't change the ownership of the string.
+    println!("True? {}", (*s2 == s1) == true);
 }
 
 fn borrow_ownership() {
@@ -286,6 +298,27 @@ fn only_one_active_mutable_reference() {
 //     return &s;
 // }
 
+// Not so sure why yet. Should come back and ponder again.
+fn a_strange_case() {
+    // won't compile:
+    //   > Use of moved value for v1[0] and v2[0]
+    // fn foo_1(v1: Vec<i32>, v2: Vec<i32>) -> (Vec<i32>, Vec<i32>, i32) {
+    //     (v1, v2, v1[0] + v2[0])
+    // }
+
+    // this is ok
+    fn foo_2(v1: Vec<i32>, v2: Vec<i32>) -> (i32, Vec<i32>, Vec<i32>) {
+        (v1[0] + v2[0], v1, v2)
+    }
+
+    let v1 = vec![1, 2, 3];
+    let v2 = vec![4, 5, 6];
+
+    let (v1, v2, answer) = foo_2(v1, v2);
+
+    println!("{:?}, {:?}, {:?}", v1, v2, answer);
+}
+
 fn main() {
     // variables();
     //
@@ -303,6 +336,8 @@ fn main() {
 
     // reference();
 
+    // dereference();
+
     // pass_in_value_vs_pass_in_reference();
 
     // borrow_ownership();
@@ -312,4 +347,6 @@ fn main() {
     // only_one_active_mutable_reference();
 
     // no_dangling_reference();
+
+    // a_strange_case();
 }
