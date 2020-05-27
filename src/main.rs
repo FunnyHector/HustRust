@@ -319,6 +319,32 @@ fn a_strange_case() {
     println!("{:?}, {:?}, {:?}", v1, v2, answer);
 }
 
+fn string_slicing() {
+    let mut s = String::from("provocative");
+
+    let slice_1 = &s[0..5];
+    let slice_2 = &s[5..];
+
+    // Boom. Once the string is sliced, it's borrowed as immutable. Even it's a mutable variable,
+    // We can't borrow it as a mutable now.
+    // Error:
+    //   > cannot borrow `s` as mutable because it is also borrowed as immutable
+    //s.push_str("wrong!");
+
+    println!("slice 1 is {}, and slice 2 is {}", slice_1, slice_2);
+}
+
+fn all_of_the_strings() {
+    let s1 = String::from("hello"); // :String
+    let s2 = "hello".to_string(); // :String. Should eq s1
+    let s3 = &s1; // :&String
+    // let s4 = *s1; // :str. This cannot compile: "doesn't have a size known at compile-time"
+    let s5 = &*s1; // :&str
+    let s6 = &s1[..]; // :&str. Should eq s5.
+
+    println!("from s1 to s6: {}, {}, {}, {}, {}", s1, s2, s3, s5, s6);
+}
+
 fn main() {
     // variables();
     //
@@ -349,4 +375,8 @@ fn main() {
     // no_dangling_reference();
 
     // a_strange_case();
+
+    // string_slicing();
+
+    all_of_the_strings();
 }
