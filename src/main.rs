@@ -345,6 +345,98 @@ fn all_of_the_strings() {
     println!("from s1 to s6: {}, {}, {}, {}, {}", s1, s2, s3, s5, s6);
 }
 
+fn struct_test() {
+    #[derive(Debug)] // this thing will give us the nice format when printing
+    struct Person {
+        name: String,
+        age: u32,
+        skills: Vec<String>,
+    }
+
+    // Object-oriented. This is a method on Person
+    impl Person {
+        // this is a instance method, the first arg is always &self
+        fn with_skills(&self) -> String {
+            self.name.clone() + &"(".to_string() + &self.skills.join(", ") + &")".to_string()
+        }
+
+        // this is a class method (static method in java)
+        fn clone_hector(skills: Vec<String>) -> Person {
+            Person {
+                name: "Hector".to_string(),
+                age: 33,
+                skills
+            }
+        }
+    }
+
+    struct Team {
+        name: String,
+        team_lead: Person,
+        developers: Vec<Person>,
+        testers: Vec<Person>,
+    }
+
+    fn person_with_skills(person: &Person) -> String {
+        person.name.clone() + &"(".to_string() + &person.skills.join(", ") + &")".to_string()
+    }
+
+    let hector = Person {
+        name: "Hector".to_string(),
+        age: 33,
+        skills: vec!["Ruby".to_string(), "Rails".to_string(), "Rust".to_string()],
+    };
+
+    let andrew = Person {
+        name: "Andrew".to_string(),
+        age: 35,
+        skills: vec!["Ruby".to_string(), "Rails".to_string(), "Jenkins".to_string()],
+    };
+
+    let beck = Person {
+        name: "Beck".to_string(),
+        age: 35,
+        skills: vec!["Management".to_string()],
+    };
+
+    let tian = Person {
+        name: "Tian".to_string(),
+        age: 35,
+        skills: vec!["test".to_string()],
+    };
+
+    let pt_1 = Team {
+        name: "Platform Team 1".to_string(),
+        team_lead: beck,
+        developers: vec![hector, andrew],
+        testers: vec![tian],
+    };
+
+    let devs: Vec<String> = pt_1.developers.iter().map(person_with_skills).collect(); // in map we provide a fn name
+    let testers: Vec<String> = pt_1.testers.iter().map(|person| person.with_skills()).collect(); // in map we call the method on person
+
+    println!("Team name: {} | Team lead name: {} | Devs are: {:?} | Testers are: {:?}", pt_1.name, person_with_skills(&pt_1.team_lead), devs, testers);
+
+    // #[derive(Debug)] will give us some good format
+    println!("{:?}", pt_1.developers[0]);
+    println!("{:#?}", pt_1.developers[0]);
+
+    let hector_clone = Person::clone_hector(vec!["Ruby", "Rails", "Rust", "Jenkins"].iter().map(|skill| skill.to_string()).collect());
+    println!("{:#?}", hector_clone);
+}
+
+fn tuple_struct_test() {
+    struct Point(u32, u32);
+
+    let origin = Point(0, 0);
+    let point_1 = Point(12, 8);
+
+    struct Foo(u32, String);
+    let bar = Foo(5, "bar".to_string());
+
+    println!("{}, {}, {}, {}, {}, {}", origin.0, origin.1, point_1.0, point_1.1, bar.0, bar.1);
+}
+
 fn main() {
     // variables();
     //
@@ -378,5 +470,9 @@ fn main() {
 
     // string_slicing();
 
-    all_of_the_strings();
+    // all_of_the_strings();
+
+    struct_test();
+
+    // tuple_struct_test();
 }
