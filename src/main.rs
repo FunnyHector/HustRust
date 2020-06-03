@@ -21,7 +21,10 @@ fn variables() {
     let quotient = 56.7 / 32.2;
     let remainder = 43 % 5;
 
-    println!("The results are: {0}, {1}, {2}, {3}, {4}, {5}", sum, difference, product, quotient, remainder, true);
+    println!(
+        "The results are: {0}, {1}, {2}, {3}, {4}, {5}",
+        sum, difference, product, quotient, remainder, true
+    );
 }
 
 // define the method signature. parameter has a type
@@ -104,16 +107,16 @@ fn loop_loop() -> char {
 // understanding ownership
 fn ownership_1() {
     /*
-       The following has error:
+      The following has error:
 
-             let s1 = String::from("hello");
-                 -- move occurs because `s1` has type `std::string::String`, which does not implement the `Copy` trait
-             let s2 = s1;
-                      -- value moved here
-             println!("{}, world!", s2);
-             println!("{}, world!", s1);
-                                    ^^ value borrowed here after move
-     */
+            let s1 = String::from("hello");
+                -- move occurs because `s1` has type `std::string::String`, which does not implement the `Copy` trait
+            let s2 = s1;
+                     -- value moved here
+            println!("{}, world!", s2);
+            println!("{}, world!", s1);
+                                   ^^ value borrowed here after move
+    */
     // let s1 = String::from("hello");
     // let s2 = s1;
     // println!("{}, world! {}, world!", s1, s2);
@@ -338,7 +341,7 @@ fn all_of_the_strings() {
     let s1 = String::from("hello"); // :String
     let s2 = "hello".to_string(); // :String. Should eq s1
     let s3 = &s1; // :&String
-    // let s4 = *s1; // :str. This cannot compile: "doesn't have a size known at compile-time"
+                  // let s4 = *s1; // :str. This cannot compile: "doesn't have a size known at compile-time"
     let s5 = &*s1; // :&str
     let s6 = &s1[..]; // :&str. Should eq s5.
 
@@ -365,7 +368,7 @@ fn struct_test() {
             Person {
                 name: "Hector".to_string(),
                 age: 33,
-                skills
+                skills,
             }
         }
     }
@@ -390,7 +393,11 @@ fn struct_test() {
     let andrew = Person {
         name: "Andrew".to_string(),
         age: 35,
-        skills: vec!["Ruby".to_string(), "Rails".to_string(), "Jenkins".to_string()],
+        skills: vec![
+            "Ruby".to_string(),
+            "Rails".to_string(),
+            "Jenkins".to_string(),
+        ],
     };
 
     let beck = Person {
@@ -413,15 +420,30 @@ fn struct_test() {
     };
 
     let devs: Vec<String> = pt_1.developers.iter().map(person_with_skills).collect(); // in map we provide a fn name
-    let testers: Vec<String> = pt_1.testers.iter().map(|person| person.with_skills()).collect(); // in map we call the method on person
+    let testers: Vec<String> = pt_1
+        .testers
+        .iter()
+        .map(|person| person.with_skills())
+        .collect(); // in map we call the method on person
 
-    println!("Team name: {} | Team lead name: {} | Devs are: {:?} | Testers are: {:?}", pt_1.name, person_with_skills(&pt_1.team_lead), devs, testers);
+    println!(
+        "Team name: {} | Team lead name: {} | Devs are: {:?} | Testers are: {:?}",
+        pt_1.name,
+        person_with_skills(&pt_1.team_lead),
+        devs,
+        testers
+    );
 
     // #[derive(Debug)] will give us some good format
     println!("{:?}", pt_1.developers[0]);
     println!("{:#?}", pt_1.developers[0]);
 
-    let hector_clone = Person::clone_hector(vec!["Ruby", "Rails", "Rust", "Jenkins"].iter().map(|skill| skill.to_string()).collect());
+    let hector_clone = Person::clone_hector(
+        vec!["Ruby", "Rails", "Rust", "Jenkins"]
+            .iter()
+            .map(|skill| skill.to_string())
+            .collect(),
+    );
     println!("{:#?}", hector_clone);
 }
 
@@ -434,7 +456,134 @@ fn tuple_struct_test() {
     struct Foo(u32, String);
     let bar = Foo(5, "bar".to_string());
 
-    println!("{}, {}, {}, {}, {}, {}", origin.0, origin.1, point_1.0, point_1.1, bar.0, bar.1);
+    println!(
+        "{}, {}, {}, {}, {}, {}",
+        origin.0, origin.1, point_1.0, point_1.1, bar.0, bar.1
+    );
+}
+
+fn enum_test() {
+    #[derive(Debug)]
+    enum Fruit {
+        Apple {
+            weight_gram: f64,
+        },
+        Orange {
+            number_of_slices: u8,
+            country_of_origin: String,
+        },
+        Banana {
+            colour: String,
+        },
+        Kiwifruit {
+            is_golden: bool,
+        },
+        Cherry,
+    }
+
+    let apple = Fruit::Apple { weight_gram: 60.40 };
+    let orange = Fruit::Orange {
+        number_of_slices: 10,
+        country_of_origin: String::from("US"),
+    };
+    let banana = Fruit::Banana {
+        colour: String::from("green"),
+    };
+    let kiwifruit = Fruit::Kiwifruit { is_golden: true };
+    let cherry = Fruit::Cherry;
+
+    println!(
+        "Apple: {:?} | Orange: {:?} | Banana: {:?} | Kiwifruit: {:?} | Cherry: {:?}",
+        apple, orange, banana, kiwifruit, cherry
+    );
+
+    // pattern matching
+    match orange {
+        Fruit::Apple { weight_gram } => {
+            println!(
+                "10 of this apple would weight {} grams",
+                weight_gram * 10 as f64
+            ) // Using "as f64" to safely cast to f64
+        }
+        Fruit::Orange {
+            number_of_slices,
+            country_of_origin,
+        } => println!(
+            "This orange is from {} and has {} slices",
+            country_of_origin, number_of_slices
+        ),
+        _ => {} // matches everything and does nothing.
+    }
+}
+
+/*
+   Rust does not *at all* allow null.
+   Option is used to handle the possible null value.
+   This is like Haskell, the Maybe monad: Maybe a = Just a | Nothing
+*/
+fn option_enum() {
+    // fn(Option<u32>) -> String
+    fn function_that_takes_optional_int(num: Option<u32>) -> String {
+        match num {
+            // Option is included by default, so Option::Some(..) can be simplified as Some(..), and
+            // and so is None.
+            // (need to figure out the term for import/include/require)
+            Some(100) => "!!!100!!!".to_string(),
+            Some(number) => number.to_string(),
+            None => {
+                // TODO: this is obviously not ideal. Revisit this when I know more of Rust.
+                String::from("Some string for the error case")
+            }
+        }
+    }
+
+    let num = Some(100);
+    // let num = Some(66);
+    // let num = None;
+    let result = function_that_takes_optional_int(num);
+
+    println!("The result is: {:?}", result)
+}
+
+/*
+  This looks like just a syntax sugar of pattern matching.
+  There is a similar thing: while let pattern = expression { do_something() }
+
+  The syntax is:
+
+        if let pattern_1 = expression {
+            do_something()
+        } else if let pattern_2 = expression {
+            do_something_else()
+        } else {
+            all_other_cases()
+        }
+
+    This reads as if `let` destructures `expression` into `pattern_1`, evaluate the block
+*/
+fn if_let() {
+    // This is the equivalent function to function_that_takes_optional_int in option_enum
+    // This function uses `if let` syntax
+    fn function_that_takes_optional_int(num: Option<u32>) -> String {
+        // because else if and else are both optional, so if let is often used to simplify the
+        // pattern matching that has two cases.
+        if let Some(100) = num {
+            "!!!100!!!".to_string()
+        } else if let Some(number) = num {
+            // else if is optional
+            number.to_string()
+        } else {
+            // else is optional
+            String::from("Some string for the error case")
+        }
+    }
+
+    // let num = Some(100);
+    let num = Some(66);
+    // let num = None;
+    let result = function_that_takes_optional_int(num);
+
+    println!("The result is: {:?}", result)
 }
 
 fn main() {
@@ -472,7 +621,13 @@ fn main() {
 
     // all_of_the_strings();
 
-    struct_test();
+    // struct_test();
 
     // tuple_struct_test();
+
+    // enum_test();
+
+    // option_enum();
+
+    if_let();
 }
