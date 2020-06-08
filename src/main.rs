@@ -586,6 +586,37 @@ fn if_let() {
     println!("The result is: {:?}", result)
 }
 
+// mod declaration will automatically look for a `movies.rs` or `movies/mod.rs` in the same folder,
+// and will insert its contents inside a module named `movies` under this scope.
+// In this case, `movies.rs` is found and used
+// `movies.rs` doesn't have to define `mod movies {...}`, see `movies.rs` for details.
+mod movies;
+
+// And in this case `games/mod.rs` is found and used.
+mod games;
+
+fn mod_demo() {
+    movies::play("Interstellar".to_string());
+    games::run_game_from_games_itself();
+    games::hangman::run_hangman();
+    games::guess_number::run_guess_numbers();
+}
+
+// the keyword `use` can simplify calling a method that is deep inside nested modules.
+// It's like import method in java.
+fn use_demo() {
+    use games::guess_number::run_guess_numbers;
+    run_guess_numbers();
+
+    // `as` aliases the function name
+    use games::guess_number::run_guess_numbers as foobar;
+    foobar();
+
+    // `use` can also be used with `pub` to make it publicly available to external.
+    pub use games::guess_number::run_guess_numbers;
+}
+
+// a crate must have a main() function. This is like the main function in Java.
 fn main() {
     // variables();
     //
@@ -629,5 +660,9 @@ fn main() {
 
     // option_enum();
 
-    if_let();
+    // if_let();
+
+    // mod_demo();
+
+    use_demo();
 }
