@@ -498,6 +498,7 @@ fn enum_test() {
     );
 
     // pattern matching
+    // the patterns have to be exhaustive, like in Haskell
     match orange {
         Fruit::Apple { weight_gram } => {
             println!(
@@ -520,6 +521,11 @@ fn enum_test() {
    Rust does not *at all* allow null.
    Option is used to handle the possible null value.
    This is like Haskell, the Maybe monad: Maybe a = Just a | Nothing
+
+        enum Option<T> {
+            None,
+            Some(T),
+        }
 */
 fn option_enum() {
     // fn(Option<u32>) -> String
@@ -560,6 +566,8 @@ fn option_enum() {
         }
 
     This reads as if `let` destructures `expression` into `pattern_1`, evaluate the block
+
+    `if let` doesn't have to be exhaustive, unlike `match`.
 */
 fn if_let() {
     // This is the equivalent function to function_that_takes_optional_int in option_enum
@@ -613,7 +621,118 @@ fn use_demo() {
     foobar();
 
     // `use` can also be used with `pub` to make it publicly available to external.
-    pub use games::guess_number::run_guess_numbers;
+    // pub use games::guess_number::run_guess_numbers;
+}
+
+fn unrecoverable_error_handling() {
+    panic!("Something is wrong!");
+
+    // This is unreachable, because panic! stops the execution.
+    // println!("Something is not wrong");
+}
+
+fn recoverable_error_handling() {
+    use std::fs::File;
+
+    // result here will be a Result<File, Error> type.
+    //
+    //     enum Result<T, E> {
+    //         Ok(T),
+    //         Err(E),
+    //     }
+    let result = File::open("hello.txt");
+
+    // Use `match`
+    // match result {
+    //     Ok(file) => println!("File opened: {:?}", file),
+    //     Err(err) => println!("Failed to open the file: {}", err),
+    // }
+
+    // Use `if let`
+    if let Ok(file) = result {
+        println!("File opened: {:?}", file)
+    }
+}
+
+// Sometimes we want to throw the recoverable errors
+fn throw_recoverable_error() {
+    use std::fs::File;
+
+    // read the source to see how the error got thrown out
+    let result_1 = File::open("not_exist.txt").expect("Failed to Open");
+    let result_2 = File::open("not_exist.txt").unwrap();
+}
+
+// Question mark sign `?` looks like a syntax sugar. It retrieves the `Ok` value out.
+// and if it's not an `Ok` value but an `Err` value, return the `Err` instantly.
+//
+// Because of how `?` works, after `?` is used, the value is guaranteed to be an `Ok`
+fn question_mark_sign_example() {
+    // say we have a function that takes a int, and returns a `Result`
+    fn fn_1(number: i32) -> Result<i32, bool> {
+        if number >= 0 {
+            Ok(number)
+        } else {
+            Err(false)
+        }
+    }
+
+    // and then we have another function, that uses the first function, and returns
+    // a `Result`.
+    fn fn_2(number: i32) -> Result<i32, bool> {
+        // this is the way without using `?`
+
+        // let result = fn_1(number);
+        //
+        // if let Ok(positive_number) = result {
+        //     Ok(positive_number)
+        // } else {
+        //     Err(false)
+        // }
+
+        // this is the way using `?`
+
+        // The possible `Err<T>` that fn_1 returns must match the return type of fn_2
+        // i.e. fn_1 -> Result<T1, E1>, fn_2 -> Result<T2, E2>, here E1 and E2 must match
+        let result = fn_1(number)?;
+
+        Ok(result)
+    }
+
+    let result = fn_2(-50);
+
+    println!("result is {:?}", result);
+}
+
+// kind() can be used to find out the error type
+// This is also an example of how to achieve `try {...} catch(Error) {...}` in Rust
+// Looks like this has to be done in separate functions.
+fn error_type_example() {
+    use std::fs::File;
+    use std::io;
+    use std::io::Read;
+
+    // This function read the content from a file into a String
+    // There are two places that can return error.
+    fn read_text_from_file(path: &str) -> Result<String, io::Error> {
+        let mut file = File::open(path)?;
+        let mut content = String::new();
+
+        file.read_to_string(&mut content)?;
+
+        Ok(content)
+    }
+
+    let result = read_text_from_file("not_exist.txt");
+
+    match result {
+        Ok(content) => println!("Content is: {}", content),
+        Err(error) => match error.kind() {
+            // This is a little like we catch a specific error type and do something
+            io::ErrorKind::NotFound => println!("No such file!"),
+            _ => println!("Unknown error!"),
+        },
+    }
 }
 
 // a crate must have a main() function. This is like the main function in Java.
@@ -664,5 +783,15 @@ fn main() {
 
     // mod_demo();
 
-    use_demo();
+    // use_demo();
+
+    // unrecoverable_error_handling();
+
+    // recoverable_error_handling();
+
+    // throw_recoverable_error();
+
+    // question_mark_sign_example();
+
+    error_type_example();
 }
