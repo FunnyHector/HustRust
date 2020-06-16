@@ -634,7 +634,8 @@ fn unrecoverable_error_handling() {
 fn recoverable_error_handling() {
     use std::fs::File;
 
-    // result here will be a Result<File, Error> type.
+    // `result` here will be a Result<File, Error> type.
+    // This is a enum with generic types in definition.
     //
     //     enum Result<T, E> {
     //         Ok(T),
@@ -735,6 +736,77 @@ fn error_type_example() {
     }
 }
 
+fn generic_example() {
+    // a simple non-generic function to find the max of an array
+    fn max(array: &[i32]) -> i32 {
+        let mut index_of_max: usize = 0;
+        for index in 1..array.len() {
+            if array[index_of_max] < array[index] {
+                index_of_max = index;
+            }
+        }
+
+        array[index_of_max]
+    }
+
+    // rewrite this function in a generic way
+    // <T> is the type param.
+    // T also has restrictions: it has to implement PartialOrd and Clone traits,
+    // because the `<` operator and `clone` function are used on T.
+    fn max_generic<T: std::cmp::PartialOrd + std::clone::Clone>(array: &[T]) -> T {
+        let mut index_of_max: usize = 0;
+        for index in 1..array.len() {
+            if array[index_of_max] < array[index] {
+                index_of_max = index;
+            }
+        }
+
+        array[index_of_max].clone()
+    }
+
+    let array = [1, 2, 3, 4, 5, 6, 7, 8, 1, 1, 0, 0, -3];
+
+    println!(
+        "max & max_generic: {} & {}",
+        max(&array),
+        max_generic(&array),
+    );
+}
+
+fn generic_struct_example() {
+    struct Point<T> {
+        x: T,
+        y: T,
+    }
+
+    let point_1 = Point { x: 1, y: 2 };
+    let point_2 = Point { x: 1.0, y: 2.5 };
+
+    // unmatched types are not allowed:
+    // let invalid_point = Point { x: 1, y: 2.5 };
+
+    // and when we implement a function for the struct, we need to add the generic type
+    // after the keyword `impl` too
+    impl<T> Point<T> {
+        fn get_x(&self) -> &T {
+            &self.x
+        }
+    }
+
+    // we can implement same function differently based on different types
+    impl Point<i32> {
+        fn get_y(&self) -> &i32 {
+            &self.y
+        }
+    }
+
+    impl Point<String> {
+        fn get_y(&self) -> String {
+            "Something Different".to_string()
+        }
+    }
+}
+
 // a crate must have a main() function. This is like the main function in Java.
 fn main() {
     // variables();
@@ -793,5 +865,9 @@ fn main() {
 
     // question_mark_sign_example();
 
-    error_type_example();
+    // error_type_example();
+
+    // generic_example();
+
+    generic_struct_example();
 }
