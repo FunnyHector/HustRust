@@ -807,6 +807,74 @@ fn generic_struct_example() {
     }
 }
 
+fn trait_example() {
+    struct Person {
+        name: String,
+        age: u32,
+        skills: Vec<String>,
+    }
+
+    let hector = Person {
+        name: "Hector".to_string(),
+        age: 33,
+        skills: vec![],
+    };
+    let roxy = Person {
+        name: "Roxy".to_string(),
+        age: 32,
+        skills: vec![],
+    };
+
+    // This is a generic trait
+    trait Love<T> {
+        // this is a function that has implementation.
+        // in Java this is called default method in interface
+        fn love(&self, other: &T) -> String {
+            "Love".to_string()
+        }
+    }
+
+    // Implement the trait for Person. Syntax:
+    //
+    //     impl <trait_name> for <struct_or_enum_name>
+
+    // Since it's a generic trait, we need to specify the type for it.
+    //
+    // If we don't override the default implementation, then it behaves as the default
+    // implementation:
+    // impl Love<Person> for Person {}
+
+    // If we override the default implementation, then it behaves as the new way.
+    impl Love<Person> for Person {
+        fn love(&self, other: &Person) -> String {
+            self.name.clone() + " loves " + &other.name
+        }
+    }
+
+    println!("{}", hector.love(&roxy));
+
+    // another trait
+    trait Hate<T> {
+        // this function is empty.
+        // any struct that implement this trait needs to implement this function
+        // NOTE: do not need an empty {} after String.
+        // i.e. this is wrong: fn hate(&self, other: T) -> String {};
+        fn hate(&self, other: &T) -> String;
+    }
+
+    // This doesn't compile as Rust knows that there is an empty function that
+    // needs a concrete implementation.
+    // impl Hate<Person> for Person {}
+
+    impl Hate<Person> for Person {
+        fn hate(&self, other: &Person) -> String {
+            self.name.clone() + " hates " + &other.name + " (not really :))"
+        }
+    }
+
+    println!("{}", hector.hate(&roxy));
+}
+
 // a crate must have a main() function. This is like the main function in Java.
 fn main() {
     // variables();
@@ -869,5 +937,7 @@ fn main() {
 
     // generic_example();
 
-    generic_struct_example();
+    // generic_struct_example();
+
+    trait_example();
 }
