@@ -875,6 +875,145 @@ fn trait_example() {
     println!("{}", hector.hate(&roxy));
 }
 
+fn trait_on_generic_types() {
+    trait Love {
+        fn love(&self) -> String;
+    }
+
+    // This is a little like Ruby -- we can reopen a bundled core class!
+    // But really this isn't anything black-magical like Ruby.
+    // We just implement a trait for a struct (yes String is a struct)
+    impl Love for String {
+        fn love(&self) -> String {
+            "Love ".to_string() + self
+        }
+    }
+
+    // In Java, we can declare the argument type with an interface
+    // In Rust this is done with a slightly different syntax -- add `impl` before the trait
+    // This method signature means: the function accepts an `object` argument which
+    // must implement the trait `Love`
+    fn give_love_1(object: impl Love) {
+        // inside the function, `object` can only invoke functions defined in `Love`
+        // Explained in Ruby:
+        // object.methods == Love.methods
+        println!("{}", object.love());
+    }
+
+    give_love_1("Rust".to_string());
+
+    // Another way using generic:
+    fn give_love_2<T: Love>(object: T) {
+        println!("{}", object.love());
+    }
+
+    give_love_2("Rust".to_string());
+
+    // The generic way is more handy when there are multiple args
+    // Otherwise the method def line would be
+    //     fn give_love_3(object_1: impl Love, object_2: impl Love, object_3: impl Love)
+    fn give_love_3<T: Love>(object_1: T, object_2: T, object_3: T) {
+        println!(
+            "{}, {}, {}",
+            object_1.love(),
+            object_2.love(),
+            object_3.love()
+        );
+    }
+
+    give_love_3(
+        "Rust".to_string(),
+        "Music".to_string(),
+        "Fancy Car".to_string(),
+    );
+
+    trait Hate {
+        fn hate(&self) -> String;
+    }
+
+    impl Hate for String {
+        fn hate(&self) -> String {
+            "Hate ".to_string() + self
+        }
+    };
+
+    // When we want a type that implements multiple traits,
+    // we can use `+` to connect multiple traits
+    // Alternatively, this could be:
+    //     give_love_4(object: impl Love + Hate)
+    fn give_love_4<T: Love + Hate>(object: T) {
+        println!("{}, or {}", object.love(), object.hate());
+    }
+
+    give_love_4("Rust".to_string());
+
+    // A syntax sugar to make the long line shorter and read nicer
+    // use the keyword `where`
+    fn give_love_5<T, U>(object_1: T, object_2: U)
+    where
+        T: Love,
+        U: Love + Hate,
+    {
+        println!("{}, and {}", object_1.love(), object_2.hate());
+    }
+
+    give_love_5("Rust".to_string(), "Damp weather".to_string());
+
+    // The keyword `Self` is a special type, it represents the current type
+    // or, in other words, the type of `self` (note the case difference)
+    trait Respect {
+        fn respect(&self, other: &Self) -> String;
+    }
+
+    impl Respect for String {
+        fn respect(&self, other: &Self) -> String {
+            self.clone() + " respects " + &other[..]
+        }
+    };
+
+    fn give_respect<T: Respect>(from: T, to: T) {
+        println!("{}", from.respect(&to));
+    }
+
+    give_respect("Hector".to_string(), "Andrew".to_string());
+}
+
+// We want to define a function that returns a type that implements a trait
+// syntax:
+//     fn function_name(arg: type) -> impl TraitName { ... }
+fn trait_as_return_type() {
+    trait Love {
+        fn love(&self) -> String {
+            "Love".to_string()
+        }
+    }
+
+    impl Love for String {};
+
+    // This function returns something that implements `Love`.
+    // The implementation returns a string, which implements `Love`,
+    // so it's valid.
+    fn function_that_returns_trait_1() -> impl Love {
+        "Any String".to_string()
+    }
+
+    impl Love for Option<String> {};
+
+    // Also valid since `Option<String>` has implemented `Love`
+    fn function_that_returns_trait_2() -> impl Love {
+        Some("Any String".to_string())
+    }
+
+    // The print function won't work because it expects string as arguments.
+    // But the compiler can only be sure that these two functions returns
+    // a "impl Love" type, but that is not necessarily String.
+    // println!(
+    //     "{:?} and {:?}",
+    //     function_that_returns_trait_1(),
+    //     function_that_returns_trait_2()
+    // );
+}
+
 // a crate must have a main() function. This is like the main function in Java.
 fn main() {
     // variables();
@@ -939,5 +1078,9 @@ fn main() {
 
     // generic_struct_example();
 
-    trait_example();
+    // trait_example();
+
+    // trait_on_generic_types();
+
+    trait_as_return_type();
 }
