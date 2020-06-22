@@ -1104,7 +1104,52 @@ fn lifetime_example() {
     );
 }
 
-// a crate must have a main() function. This is like the main function in Java.
+fn main_args() {
+    let args = std::env::args();
+
+    println!("args: {:?}", args);
+}
+
+fn std_io_read() {
+    // This is the function to read std input.
+    use std::io::stdin;
+
+    let mut string_buffer = String::new();
+
+    println!("Please enter something:");
+
+    stdin()
+        // Look closely at the arg and return type of read_line()
+        .read_line(&mut string_buffer)
+        .expect("Failed to read line");
+
+    println!("Input is: {}", string_buffer);
+}
+
+// We have seen how to read all the content of a file into memory in error_type_example()
+// This example is to read file as a stream.
+fn file_read_stream() {
+    use std::fs;
+    use std::io::prelude::*;
+
+    // two ways of array
+    // let a = [type_of_element; number_of_element]; e.g. let a = [u32; 5]
+    // let b = [1,2,3,4]; This is an array with type [i32; 4].
+    let mut buffer = [0u8; 10];
+
+    // To read the file as stream, we need to open it first.
+    let mut file = fs::File::open("hello.txt").expect("Cannot open the file");
+
+    // Read the file into bytes, fill the buffer.
+    file.read(&mut buffer).expect("Cannot read the content");
+    println!("The first 10 characters are: {:?}", buffer);
+
+    file.read(&mut buffer).expect("Cannot read the content");
+    println!("The next 10 characters are: {:?}", buffer);
+}
+
+// A crate must have a main() function. This is like the main function in Java.
+// Unlike in Java, the main function doesn't have arguments.
 fn main() {
     // variables();
     //
@@ -1146,7 +1191,7 @@ fn main() {
 
     // enum_test();
 
-    private_fields_in_struct();
+    // private_fields_in_struct();
 
     // option_enum();
 
@@ -1176,5 +1221,12 @@ fn main() {
 
     // trait_as_return_type();
 
-    lifetime_example();
+    // lifetime_example();
+
+    // try running this one with extra args
+    // main_args();
+
+    // std_io_read();
+
+    file_read_stream();
 }
