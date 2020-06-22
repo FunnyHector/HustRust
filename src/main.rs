@@ -513,8 +513,44 @@ fn enum_test() {
             "This orange is from {} and has {} slices",
             country_of_origin, number_of_slices
         ),
-        _ => {} // matches everything and does nothing.
+        _ => {} // matches everything else and does nothing.
     }
+}
+
+fn private_fields_in_struct() {
+    mod test {
+        // Because this struct has private fields, so the constructor,
+        // `Person { name: foo, age: bar }` is not available outside of
+        // test module
+        #[derive(Debug)]
+        pub struct Person {
+            // Person is public
+            name: String, // private field
+            age: u32,     // private field
+        }
+
+        impl Person {
+            // factory function to create a Person
+            pub fn create_person(name: String, age: u32) -> Person {
+                Person { name, age }
+            }
+
+            // getter for name
+            pub fn get_name(&self) -> String {
+                self.name.clone()
+            }
+        }
+    }
+
+    let hector = test::Person::create_person("Hector".to_string(), 33);
+
+    // This doesn't compile. `name` is private field so we can't access it here.
+    // let name = hector.name;
+
+    // This works as the getter function is public and accessible from here.
+    let name = hector.get_name();
+
+    println!("Hector's name is {}", name);
 }
 
 /*
@@ -1109,6 +1145,8 @@ fn main() {
     // tuple_struct_test();
 
     // enum_test();
+
+    private_fields_in_struct();
 
     // option_enum();
 
