@@ -1014,6 +1014,60 @@ fn trait_as_return_type() {
     // );
 }
 
+fn lifetime_example() {
+    // This function can't pass compilation, because the return value is one of the arguments,
+    // whose lifetime could have been ended. See the code below this function for example.
+    // fn longer_string(s1: &str, s2: &str) -> &str {
+    //     if s2.len() > s1.len() {
+    //         s2
+    //     } else {
+    //         s1
+    //     }
+    // }
+    //
+    // let result;
+    // {
+    //     let s1 = "short";
+    //     let s2 = "long";
+    //     result = longer_string(s1, s2);
+    // } // outside this code block, s1 and s2 has ended their lifetime
+    // so we are using `result` illegally.
+    // println!("{} is longer", result);
+
+    // With lifetime parameter, this function compiles and works as expected.
+    fn longer_string<'a>(s1: &'a str, s2: &'a str) -> &'a str {
+        if s2.len() > s1.len() {
+            s2
+        } else {
+            s1
+        }
+    }
+
+    println!("The longer string: {}", longer_string("Short", "Long"));
+
+    // The following example comes from the rust bible. Includes generics, traits, and lifetime.
+
+    use std::fmt::Display;
+
+    fn longest_with_an_announcement<'a, T>(x: &'a str, y: &'a str, announcement: T) -> &'a str
+    where
+        T: Display,
+    {
+        println!("Announcement! {}", announcement);
+
+        if x.len() > y.len() {
+            x
+        } else {
+            y
+        }
+    }
+
+    println!(
+        "The longer string: {}",
+        longest_with_an_announcement("Short", "Long", "Announcement")
+    );
+}
+
 // a crate must have a main() function. This is like the main function in Java.
 fn main() {
     // variables();
@@ -1082,5 +1136,7 @@ fn main() {
 
     // trait_on_generic_types();
 
-    trait_as_return_type();
+    // trait_as_return_type();
+
+    lifetime_example();
 }
