@@ -1,3 +1,5 @@
+use std::io::Write;
+
 // variables
 fn variables() {
     // default variables
@@ -1148,6 +1150,46 @@ fn file_read_stream() {
     println!("The next 10 characters are: {:?}", buffer);
 }
 
+fn file_write() {
+    use std::fs;
+
+    // fs::write() will erase everything existed in the file at the path (the first
+    // arg) and write the new string (the second arg) into the file.
+    // This is a shorthand function to combine [`File::create`] and [`write_all`]
+    fs::write("text.txt", "Hello world from Rust!\n").expect("Couldn't write into the file");
+}
+
+fn file_write_stream() {
+    use std::fs::File;
+
+    File::create("text.txt")
+        .expect("Couldn't create the file")
+        // The argument of write() must be a byte array.
+        // b"qwert" is a byte string literal. The type is [u8; 5],
+        // and println!("{:?}", b"qwert") => [97, 100, 98, 115, 97, 119]
+        .write(b"Hello world from Rust!\n")
+        .expect("Couldn't write into the file");
+}
+
+fn file_write_with_open_options() {
+    use std::fs::OpenOptions;
+
+    // OpenOption is used to combine different options for opening the file
+    // The options are set to false initially.
+    OpenOptions::new()
+        // .create(true)
+        // .append(true) // set append to true
+        // .read(true)
+        .write(true)
+        // .truncate(true)
+        .open("text.txt")
+        .expect("Couldn't open the file")
+        // write() replaces character by character. the the first few characters are replaced
+        // by "NEW THING!!!\n"
+        .write(b"NEW THING!!!\n")
+        .expect("Couldn't write into the file");
+}
+
 // A crate must have a main() function. This is like the main function in Java.
 // Unlike in Java, the main function doesn't have arguments.
 fn main() {
@@ -1228,5 +1270,11 @@ fn main() {
 
     // std_io_read();
 
-    file_read_stream();
+    // file_read_stream();
+
+    // file_write();
+
+    // file_write_stream();
+
+    file_write_with_open_options();
 }
