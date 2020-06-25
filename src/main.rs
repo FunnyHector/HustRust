@@ -501,6 +501,8 @@ fn enum_test() {
 
     // pattern matching
     // the patterns have to be exhaustive, like in Haskell
+    // when any branch returns a result, all other branches must return
+    // results with the same type.
     match orange {
         Fruit::Apple { weight_gram } => {
             println!(
@@ -1190,6 +1192,48 @@ fn file_write_with_open_options() {
         .expect("Couldn't write into the file");
 }
 
+fn vector_examples() {
+    // type: [i32; 5]
+    let array = [1, 2, 3, 4, 5];
+    // type: Vec<i32>
+    let vector = vec![1, 2, 3, 4, 5];
+    // type: Vec<[i32; 5]>
+    let vector_of_array = vec![array, [1, 2, 3, 4, 6]];
+
+    println!("{:?}, {:?}, {:?}", array, vector, vector_of_array);
+
+    let mut vec: Vec<i32> = Vec::new();
+    // push takes an element with the same type. The new element is at the end.
+    vec.push(1);
+    vec.push(2);
+    &vec.push(3); // can also borrow it to push.
+
+    println!("{:?}", vec);
+
+    let mut other_vec = vec![4, 5, 6];
+
+    // append takes a vector with the same type. It will clear the other
+    // vector which will become empty.
+    vec.append(&mut other_vec);
+
+    println!("{:?}, {:?}", vec, other_vec);
+
+    // Java-like getter with the index
+    println!("{}", vec[0]);
+
+    // Index out of bounds error is also seen in this way.
+    println!("{}", vec[0]);
+
+    // get() is the safer way. Returns an option.
+    println!(
+        "{}",
+        match vec.get(6) {
+            Some(value) => value.to_string(),
+            None => "None".to_string(),
+        }
+    );
+}
+
 // A crate must have a main() function. This is like the main function in Java.
 // Unlike in Java, the main function doesn't have arguments.
 fn main() {
@@ -1276,5 +1320,7 @@ fn main() {
 
     // file_write_stream();
 
-    file_write_with_open_options();
+    // file_write_with_open_options();
+
+    vector_examples();
 }
