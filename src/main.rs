@@ -1,4 +1,5 @@
 use std::io::Write;
+use std::ops::Add;
 
 // variables
 fn variables() {
@@ -1234,6 +1235,52 @@ fn vector_examples() {
     );
 }
 
+fn string_concatenation() {
+    let mut s1 = String::new(); // a new string, empty, length == 0
+    s1.push_str("Hello!"); // push another string
+    s1.push('!'); // push a single character
+
+    println!("{}", s1);
+
+    let s2 = String::from("World!");
+    // s1 + &s2 will consume s1, but not s2 because s2 is a borrowed value.
+    // read the doc of String::add(), it's very clear and informative.
+    // `s1 + &s2` is the inlined way for `s1.add(&s2);`
+    let s3 = s1 + &s2;
+
+    // if we want to continue using s1, we could do this as doc suggested:
+    // let s3 = s1.clone() + &s2;
+
+    println!("s2: {} | s3: {}", s2, s3);
+
+    // Using `+` for multiple values of String or &str type.
+    // Note that we need to borrow the value of String, but we can
+    // use the value of &str directly
+    let s4 = s3 + "(" + &s2 + ")";
+    println!("s4: {}", s4);
+
+    // Or some people propose to use format! macro for string concatenation
+    let s5 = format!("{} ({}, {})", s4, "foobar", s2);
+    println!("s5: {}", s5);
+}
+
+fn string_length() {
+    // len() returns the length in bytes (important!). It's not necessarily the
+    // number of characters.
+    println!("length: {}", "Hello".len());
+
+    // Its length is 3.
+    println!("length: {}", '天'.to_string().len());
+
+    // So instead, if we want to count the number of characters, use chars().count()
+    // Note that counting chars are slower than counting byte size.
+    println!(
+        "chars: {:?} | count: {}",
+        "天123".chars(),
+        "天123".chars().count()
+    );
+}
+
 // A crate must have a main() function. This is like the main function in Java.
 // Unlike in Java, the main function doesn't have arguments.
 fn main() {
@@ -1322,5 +1369,9 @@ fn main() {
 
     // file_write_with_open_options();
 
-    vector_examples();
+    // vector_examples();
+
+    // string_concatenation();
+
+    string_length();
 }
