@@ -362,7 +362,7 @@ fn struct_test() {
     impl Person {
         // this is a instance method, the first arg is always &self
         fn with_skills(&self) -> String {
-            self.name.clone() + &"(".to_string() + &self.skills.join(", ") + &")".to_string()
+            self.name.clone() + "(" + &self.skills.join(", ") + ")"
         }
 
         // this is a class method (static method in java)
@@ -383,7 +383,7 @@ fn struct_test() {
     }
 
     fn person_with_skills(person: &Person) -> String {
-        person.name.clone() + &"(".to_string() + &person.skills.join(", ") + &")".to_string()
+        person.name.clone() + "(" + &person.skills.join(", ") + ")"
     }
 
     let hector = Person {
